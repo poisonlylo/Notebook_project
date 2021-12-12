@@ -13,6 +13,8 @@ mysql.h
 -
 stdlib.h
 -
+string.h
+-
 
 /usr/local/mysql-connector-c-6.1.11-macos10.12-x86_64/include/binary_log_types.h
 
