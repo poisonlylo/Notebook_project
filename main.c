@@ -2,11 +2,14 @@
 #include <mysql.h>
 #include <stdlib.h>
 #include <string.h>
+#include <gtk/gtk.h>
 
     int main(int argc, char **argv){
 
         char username[255];
         char password[255];
+        char user[15];
+        char pass[12];
         char email[255];
         int id;
         char requete[255];
@@ -34,13 +37,14 @@
             sprintf(requete, "INSERT INTO account(user_id , username, email, password) VALUES('%d', '%s', '%s', '%s')", id,username, email, password );
 
             mysql_query(&mysql, requete);
-            mysql_close(&mysql);
+
         }
         else
         {
             printf("Une erreur s'est produite lors de la connexion à la BDD!");
         }
 
-        return 0;
+
+return 0;
     }
 
