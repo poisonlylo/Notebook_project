@@ -3,6 +3,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <gtk/gtk.h>
+
+GtkWidget *notebook;
+
 typedef struct{
     char *label;
     char sub_items;
@@ -13,9 +16,42 @@ MuButton menulist[] = {
           {"file", 6, {"new", "open","save", "save as", "close", "quit" }},
          {"edit", 4,{"copy", "paste","cut", "delete"} }
 };
-void button_click(GtkWidget *button, gpointer data){
-    g_print("Click");
 
+void close_tab(){
+    g_print("close tab");
+}
+
+void add_tab(char *name){
+GtkWidget *textview = gtk_text_view_new();
+GtkWidget *text = gtk_label_new(name);
+GtkWidget *label = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
+GtkWidget *icon = gtk_image_new_from_file("close.png");
+GtkWidget *button = gtk_button_new();
+gtk_button_set_image(GTK_BUTTON(button), icon);
+gtk_box_pack_start(label,text, TRUE, TRUE, 0);
+gtk_box_pack_start(label,button, FALSE, FALSE, 0);
+    g_signal_connect(button, "clicked", G_CALLBACK(close_tab), NULL);
+GtkWidget *scroll_window = gtk_scrolled_window_new(NULL, NULL);
+    gtk_container_add(scroll_window, textview);
+    gtk_notebook_append_page(GTK_NOTEBOOK(notebook), scroll_window, label);
+    gtk_widget_show_all(label);
+    gtk_widget_show_all(scroll_window);
+
+}
+
+void button_click(GtkWidget *button, gpointer data){
+    char *btn = (char*)data ;
+    if (strcmp(btn, "new") == 0) add_tab("new tab");
+
+
+}
+
+
+
+void make_notebook(GtkWidget *vbox){
+ notebook = gtk_notebook_new();
+    gtk_box_pack_start(vbox,  notebook, TRUE, TRUE, 0);
+    add_tab("untiteled");
 }
 void close_window(){
      gtk_main_quit();
@@ -40,13 +76,14 @@ void make_nemu(GtkWidget *vbox){
 void make_window(){
     GtkWidget *window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
-    gtk_window_set_default_size(GTK_WINDOW(window), 400, 400);
-    gtk_window_set_title(GTK_WINDOW(window), "Login");
+    gtk_window_set_default_size(GTK_WINDOW(window), 800, 800);
+    gtk_window_set_title(GTK_WINDOW(window), "NoteBook");
     g_signal_connect(G_OBJECT(window), "destroy", G_CALLBACK(close_window), NULL);
 
     GtkWidget *vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);
     gtk_container_add(GTK_CONTAINER(window), vbox);
     make_nemu(vbox);
+    make_notebook(vbox);
     gtk_widget_show_all(window);
 }
 
