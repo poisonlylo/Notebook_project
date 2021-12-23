@@ -17,8 +17,9 @@ MuButton menulist[] = {
          {"edit", 4,{"copy", "paste","cut", "delete"} }
 };
 
-void close_tab(){
-    g_print("close tab");
+void close_tab(GtkWidget *button, gpointer data){
+    int pg_num = gtk_notebook_page_num(GTK_NOTEBOOK(notebook), data);
+    gtk_notebook_remove_page(notebook, pg_num); 
 }
 
 void add_tab(char *name){
@@ -30,19 +31,37 @@ GtkWidget *button = gtk_button_new();
 gtk_button_set_image(GTK_BUTTON(button), icon);
 gtk_box_pack_start(label,text, TRUE, TRUE, 0);
 gtk_box_pack_start(label,button, FALSE, FALSE, 0);
-    g_signal_connect(button, "clicked", G_CALLBACK(close_tab), NULL);
+
 GtkWidget *scroll_window = gtk_scrolled_window_new(NULL, NULL);
     gtk_container_add(scroll_window, textview);
     gtk_notebook_append_page(GTK_NOTEBOOK(notebook), scroll_window, label);
+    g_signal_connect(button, "clicked", G_CALLBACK(close_tab), NULL);
     gtk_widget_show_all(label);
     gtk_widget_show_all(scroll_window);
 
 }
 
+void open_file(void *file_address){
+    g_print("%s", file_address);
+}
+void open_file_dialog(){
+    GtkWidget *open_dialog;
+    int res;
+    open_dialog = gtk_file_chooser_dialog_new("open_file", NULL, GTK_FILE_CHOOSER_ACTION_OPEN,  "Cancel", GTK_RESPONSE_CANCEL, "Open", GTK_RESPONSE_ACCEPT, NULL );
+    res = gtk_dialog_run(GTK_DIALOG(open_dialog));
+   if (res == GTK_RESPONSE_ACCEPT){
+       char *file_address;
+       GtkFileChooser *chooser = GTK_FILE_CHOOSER(open_dialog);
+       file_address = gtk_file_chooser_get_filename(chooser);
+       open_file(file_address);
+       free(file_address);
+   }
+   gtk_widget_destroy(open_dialog);
+}
 void button_click(GtkWidget *button, gpointer data){
     char *btn = (char*)data ;
     if (strcmp(btn, "new") == 0) add_tab("new tab");
-
+    if (strcmp(btn, "open") == 0) open_file_dialog();
 
 }
 
@@ -56,7 +75,7 @@ void make_notebook(GtkWidget *vbox){
 void close_window(){
      gtk_main_quit();
 }
-void make_nemu(GtkWidget *vbox){
+void make_menu(GtkWidget *vbox){
     GtkWidget *menubar = gtk_menu_bar_new();
     for (int i = 0; i < 7; ++i) {
         GtkWidget *item = gtk_menu_item_new_with_label(menulist[i].label);
@@ -82,11 +101,14 @@ void make_window(){
 
     GtkWidget *vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);
     gtk_container_add(GTK_CONTAINER(window), vbox);
-    make_nemu(vbox);
+    make_menu(vbox);
     make_notebook(vbox);
     gtk_widget_show_all(window);
 }
 
+
+
+}
 
     int main(int argc, char **argv){
 
