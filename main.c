@@ -4,6 +4,7 @@
 #include <string.h>
 #include <gtk/gtk.h>
 
+GtkEntry *tx_id, *tx_name;
 void close_window(){
      gtk_main_quit();
 
@@ -19,15 +20,54 @@ void make_window(){
     gtk_container_add(GTK_CONTAINER(window), vbox);
     gtk_widget_show_all(window);
 }
+void button_pressed(GtkApplication *p_b, gpointer *data) {
+    g_print("clicked");
+}
+void login_window(GtkApplication *login_app, gpointer *user_data) {
+    GtkWidget *window;
+    window = gtk_application_window_new(login_app);
+    gtk_window_set_default_size(GTK_WINDOW(window), 400, 100);
+    gtk_window_set_title(GTK_WINDOW(window), "Login");
+
+    GtkWidget *vbox = gtk_vbox_new(FALSE, 0);
+    gtk_container_add(GTK_CONTAINER(window), vbox);
+    gtk_widget_show(vbox);
+
+    tx_id = gtk_entry_new();
+    gtk_box_pack_start(GTK_CONTAINER(vbox), tx_id, TRUE, TRUE, 10 );
+    gtk_widget_show(tx_id);
+
+    GtkWidget *hbox = gtk_hbox_new(TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(vbox), hbox, TRUE, TRUE, 10);
+
+    tx_name = gtk_entry_new();
+    gtk_box_pack_start(GTK_CONTAINER(hbox), tx_name, TRUE, TRUE, 10);
+    gtk_widget_show(tx_name);
+
+    GtkWidget *button_box = gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL);
+    gtk_box_pack_start(GTK_BOX(vbox), button_box, TRUE, TRUE, 10);
+
+    GtkWidget *button = gtk_button_new_with_label("insert row");
+    g_signal_connect(button, "clicked", G_CALLBACK(button_pressed), NULL);
+    gtk_container_add(GTK_CONTAINER(button_box), button);
+    gtk_widget_show(button);
+
+    gtk_widget_show_all(window);
 
 
+}
     int main(int argc, char **argv){
+
+    GtkApplication *login = gtk_application_new("login.window", G_APPLICATION_FLAGS_NONE);
+        g_signal_connect(login, "activate", G_CALLBACK(login_window), NULL);
+         g_application_run(G_APPLICATION(login), argc, argv);
+        g_object_unref(login);
 
         gtk_init(&argc, &argv);
         make_window();
         gtk_main();
 
-/*
+
         char username[255];
         char password[255];
         char user[15];
@@ -39,7 +79,7 @@ void make_window(){
 
 
 
-
+/*
         printf("enter your email\n");
         fgets(email, 255, stdin);
         if(email[strlen(email)-1] == "\n") email[strlen(email)-1] = "\0";
@@ -47,7 +87,7 @@ void make_window(){
         fgets(password, 255, stdin);
         printf("enter your username\n");
         fgets(username, 255, stdin);
-
+*/
 
 
         MYSQL mysql;
@@ -68,7 +108,7 @@ void make_window(){
             printf("Une erreur s'est produite lors de la connexion à la BDD!");
         }
 
-*/
+
 return 0;
 
     }
