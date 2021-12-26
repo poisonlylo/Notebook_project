@@ -4,13 +4,15 @@
 #include <string.h>
 #include <gtk/gtk.h>
 
-
-GtkEntry *tx_id, *tx_name;
+GtkBuilder *builder;
+GtkWidget *app;
+GtkEntry *tx_surname, *tx_email, *tx_password ;
 void close_window(){
      gtk_main_quit();
 
 }
-void make_window(){
+/*
+ void make_window(){
     GtkWidget *window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
     gtk_window_set_default_size(GTK_WINDOW(window), 400, 400);
@@ -21,7 +23,8 @@ void make_window(){
     gtk_container_add(GTK_CONTAINER(window), vbox);
     gtk_widget_show_all(window);
 }
-void button_pressed(GtkApplication *p_b, gpointer *data) {
+ */
+void button_pressed(GtkWidget *W,gpointer *data) {
     char username[255];
     char password[255];
     char user[15];
@@ -39,7 +42,7 @@ void button_pressed(GtkApplication *p_b, gpointer *data) {
     {
 
         sprintf(requete, "INSERT INTO account(user_id, username, email, password) VALUES('%d','%s', '%s', '%s')",
-                id,gtk_entry_get_text(tx_id), gtk_entry_get_text(tx_name), "lyesasa");
+                id,gtk_entry_get_text(tx_surname), gtk_entry_get_text(tx_email), gtk_entry_get_text(tx_password));
 
         mysql_query(&mysql, requete);
 
@@ -49,6 +52,7 @@ void button_pressed(GtkApplication *p_b, gpointer *data) {
         printf("Une erreur s'est produite lors de la connexion à la BDD!");
     }
 }
+/*
 void login_window(GtkApplication *login_app, gpointer *user_data) {
     GtkWidget *window;
     window = gtk_application_window_new(login_app);
@@ -58,34 +62,8 @@ void login_window(GtkApplication *login_app, gpointer *user_data) {
     GtkWidget *vbox = gtk_vbox_new(FALSE, 0);
     gtk_container_add(GTK_CONTAINER(window), vbox);
     gtk_widget_show(vbox);
-    /*----------TMP---------*/
-    GtkWidget *grid;
-    GtkWidget *label_pass;
-    GtkWidget *label_user;
-    GtkWidget *u_name;
-    GtkWidget *pass;
-
-    grid = gtk_grid_new();
-    gtk_grid_set_row_spacing(GTK_GRID(grid), 3);
-    gtk_container_add(GTK_CONTAINER(window), grid);
-
-    label_user = gtk_label_new("Username  ");
-    label_pass = gtk_label_new("Password  ");
 
 
-    u_name = gtk_entry_new();
-    gtk_entry_set_placeholder_text(GTK_ENTRY(u_name), "Username");
-    gtk_grid_attach(GTK_GRID(grid), label_user, 0, 1, 1, 1);
-    gtk_grid_attach(GTK_GRID(grid), u_name, 1, 1, 2, 1);
-
-    pass = gtk_entry_new();
-    gtk_entry_set_placeholder_text(GTK_ENTRY(pass), "Password");
-    gtk_grid_attach(GTK_GRID(grid), label_pass, 0, 2, 1, 1);
-    gtk_entry_set_visibility(GTK_ENTRY(pass), 0);
-    gtk_grid_attach(GTK_GRID(grid), pass, 1, 2, 1, 1);
-
-    /*----------FIN_TMP---------*/
- /*
     tx_id = gtk_entry_new();
     gtk_box_pack_start(GTK_CONTAINER(vbox), tx_id, TRUE, TRUE, 10 );
     gtk_widget_show(tx_id);
@@ -104,11 +82,12 @@ void login_window(GtkApplication *login_app, gpointer *user_data) {
     g_signal_connect(button, "clicked", G_CALLBACK(button_pressed), NULL);
     gtk_container_add(GTK_CONTAINER(button_box), button);
     gtk_widget_show(button);
-*/
+
     gtk_widget_show_all(window);
 }
-GtkBuilder *builder;
-GtkWidget *app;
+ */
+
+
 
 G_MODULE_EXPORT
 void on_app_destroy (void)
@@ -134,6 +113,8 @@ void on_menu_quit_activate (void)
         gtk_builder_add_from_file (builder, "app_design.glade", NULL);
         app = GTK_WIDGET (gtk_builder_get_object (builder, "window1"));
         gtk_builder_connect_signals (builder, NULL);
+
+
 
         g_object_unref (G_OBJECT (builder));
 
