@@ -4,14 +4,11 @@
 #include <string.h>
 #include <gtk/gtk.h>
 
-GtkBuilder *builder;
-GtkWidget *app;
-GtkEntry *tx_surname, *tx_email, *tx_password ;
+/*
 void close_window(){
      gtk_main_quit();
-
 }
-/*
+
  void make_window(){
     GtkWidget *window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
@@ -24,34 +21,6 @@ void close_window(){
     gtk_widget_show_all(window);
 }
  */
-void button_pressed(GtkWidget *W,gpointer *data) {
-    char username[255];
-    char password[255];
-    char user[15];
-    char pass[12];
-    char email[255];
-    int id;
-    char requete[255];
-
-    MYSQL mysql;
-    mysql_init(&mysql);
-    mysql_options(&mysql,MYSQL_READ_DEFAULT_GROUP,"option");
-
-
-    if(mysql_real_connect(&mysql,"localhost","root","mysql2016","notebook",3306,NULL,0))
-    {
-
-        sprintf(requete, "INSERT INTO account(user_id, username, email, password) VALUES('%d','%s', '%s', '%s')",
-                id,gtk_entry_get_text(tx_surname), gtk_entry_get_text(tx_email), gtk_entry_get_text(tx_password));
-
-        mysql_query(&mysql, requete);
-
-    }
-    else
-    {
-        printf("Une erreur s'est produite lors de la connexion à la BDD!");
-    }
-}
 /*
 void login_window(GtkApplication *login_app, gpointer *user_data) {
     GtkWidget *window;
@@ -87,6 +56,41 @@ void login_window(GtkApplication *login_app, gpointer *user_data) {
 }
  */
 
+GtkBuilder *builder;
+GtkWidget *app;
+GtkEntry *tx_surname, *tx_email, *tx_password ;
+
+void button_pressed(GtkWidget *W,GtkEntry *data) {
+    char username[255];
+    char password[255];
+    char user[15];
+    char pass[12];
+    char email[255];
+    int id;
+    char requete[255];
+
+    MYSQL mysql;
+    mysql_init(&mysql);
+    mysql_options(&mysql,MYSQL_READ_DEFAULT_GROUP,"option");
+
+
+    if(mysql_real_connect(&mysql,"localhost","root","mysql2016","notebook",3306,NULL,0))
+    {
+
+        sprintf(requete, "INSERT INTO account(user_id, username, email, password) VALUES('%d','%s', '%s', '%s')",
+                id,gtk_entry_get_text(tx_surname), gtk_entry_get_text(tx_email), gtk_entry_get_text(tx_password));
+
+        mysql_query(&mysql, requete);
+
+    }
+    else
+    {
+        printf("Une erreur s'est produite lors de la connexion à la BDD!");
+    }
+}
+
+
+
 
 
 G_MODULE_EXPORT
@@ -114,13 +118,23 @@ void on_menu_quit_activate (void)
         app = GTK_WIDGET (gtk_builder_get_object (builder, "window1"));
         gtk_builder_connect_signals (builder, NULL);
 
-
+        tx_surname = gtk_builder_get_object(builder, "tx_surname");
+        tx_password = gtk_builder_get_object(builder, "tx_password");
+        tx_email = gtk_builder_get_object(builder, "tx_email");
+        GtkWidget *button_insc = gtk_builder_get_object(builder, "button_insc");
+        g_signal_connect(button_insc, "clicked", G_CALLBACK(button_pressed), tx_surname);
+        g_signal_connect(button_insc, "clicked", G_CALLBACK(button_pressed), tx_password);
+        g_signal_connect(button_insc, "clicked", G_CALLBACK(button_pressed), tx_email);
 
         g_object_unref (G_OBJECT (builder));
 
 /* Enter the main loop */
         gtk_widget_show (app);
         gtk_main ();
+
+
+
+
 
 /*
     GtkApplication *login = gtk_application_new("login.window", G_APPLICATION_FLAGS_NONE);

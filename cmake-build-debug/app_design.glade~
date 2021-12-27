@@ -61,11 +61,10 @@
         <child>
           <object class="GtkButton" id="button_insc">
             <property name="label" translatable="yes">button</property>
-            <property name="name">button_pressed</property>
+            <property name="name">button_insc</property>
             <property name="visible">True</property>
             <property name="can-focus">True</property>
             <property name="receives-default">True</property>
-            <signal name="clicked" handler="button_pressed" swapped="yes"/>
           </object>
           <packing>
             <property name="expand">False</property>
