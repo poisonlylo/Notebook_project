@@ -4,57 +4,7 @@
 #include <string.h>
 #include <gtk/gtk.h>
 
-/*
-void close_window(){
-     gtk_main_quit();
-}
 
- void make_window(){
-    GtkWidget *window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-    gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
-    gtk_window_set_default_size(GTK_WINDOW(window), 400, 400);
-    gtk_window_set_title(GTK_WINDOW(window), "Login");
-    g_signal_connect(G_OBJECT(window), "destroy", G_CALLBACK(close_window), NULL);
-
-    GtkWidget *vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);
-    gtk_container_add(GTK_CONTAINER(window), vbox);
-    gtk_widget_show_all(window);
-}
- */
-/*
-void login_window(GtkApplication *login_app, gpointer *user_data) {
-    GtkWidget *window;
-    window = gtk_application_window_new(login_app);
-    gtk_window_set_default_size(GTK_WINDOW(window), 400, 100);
-    gtk_window_set_title(GTK_WINDOW(window), "Login");
-
-    GtkWidget *vbox = gtk_vbox_new(FALSE, 0);
-    gtk_container_add(GTK_CONTAINER(window), vbox);
-    gtk_widget_show(vbox);
-
-
-    tx_id = gtk_entry_new();
-    gtk_box_pack_start(GTK_CONTAINER(vbox), tx_id, TRUE, TRUE, 10 );
-    gtk_widget_show(tx_id);
-
-    GtkWidget *hbox = gtk_hbox_new(TRUE, 0);
-    gtk_box_pack_start(GTK_BOX(vbox), hbox, TRUE, TRUE, 10);
-
-    tx_name = gtk_entry_new();
-    gtk_box_pack_start(GTK_CONTAINER(hbox), tx_name, TRUE, TRUE, 10);
-    gtk_widget_show(tx_name);
-
-    GtkWidget *button_box = gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL);
-    gtk_box_pack_start(GTK_BOX(vbox), button_box, TRUE, TRUE, 10);
-
-    GtkWidget *button = gtk_button_new_with_label("insert row");
-    g_signal_connect(button, "clicked", G_CALLBACK(button_pressed), NULL);
-    gtk_container_add(GTK_CONTAINER(button_box), button);
-    gtk_widget_show(button);
-
-    gtk_widget_show_all(window);
-}
- */
 
 GtkBuilder *builder;
 GtkBuilder *builder2;
@@ -142,8 +92,27 @@ void on_menu_quit_activate (void)
     exit(EXIT_SUCCESS);
 }
 
-    int main(int argc, char **argv){
 
+
+
+
+    int main(int argc, char **argv) {
+        int reponse;
+
+        //demande a l'utilisateur
+        printf("Tappez 1 pour interface graphique \n Tappez 2 pour lignes de commandes\n");
+        scanf("%d", &reponse);
+
+
+        //1 pour console
+        if (reponse == 1 ){
+            printf("hello");
+            return 0;
+        }
+
+
+        //2 pour GI
+        else{
         g_log_set_handler ("Gtk", G_LOG_LEVEL_WARNING, (GLogFunc) gtk_false, NULL);
         gtk_init (&argc, &argv);
         g_log_set_handler ("Gtk", G_LOG_LEVEL_WARNING, g_log_default_handler, NULL);
@@ -178,13 +147,18 @@ void on_menu_quit_activate (void)
         g_object_unref (G_OBJECT (builder2));
 
 
-
-/* Enter the main loop */
-
         gtk_widget_show (app);
 
 
         gtk_main ();
+
+            return 0;
+        }
+
+    }
+
+
+
 
 
 
@@ -192,15 +166,6 @@ void on_menu_quit_activate (void)
 
 
 /*
-    GtkApplication *login = gtk_application_new("login.window", G_APPLICATION_FLAGS_NONE);
-        g_signal_connect(login, "activate", G_CALLBACK(login_window), NULL);
-         g_application_run(G_APPLICATION(login), argc, argv);
-        g_object_unref(login);
-
-        gtk_init(&argc, &argv);
-        make_window();
-        gtk_main();
-
 
         char username[255];
         char password[255];
@@ -243,7 +208,7 @@ void on_menu_quit_activate (void)
         }
 
 */
-return 0;
 
-    }
+
+
 
