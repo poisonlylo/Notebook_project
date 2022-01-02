@@ -60,12 +60,14 @@ void finish_with_error(MYSQL *con)
     exit(1);
 }
 
+char pass[50];
+char pass_entry[50];
 
 void login(GtkWidget *W,GtkEntry *data) {
-    char requete[255];
+    char requette[255];
     char password[255];
     char username[255];
-    MYSQL mysql;
+
     MYSQL *con = mysql_init(NULL);
     if (con == NULL) {
         fprintf(stderr, "mysql_init() failed\n");
@@ -76,7 +78,8 @@ void login(GtkWidget *W,GtkEntry *data) {
         finish_with_error(con);
     }
 
-     if ( mysql_query(con, "SELECT password FROM account WHERE user_id = 1" )){
+     sprintf(requette, "SELECT * FROM account WHERE username = '%s'", gtk_entry_get_text(entry_username) );
+     if ( mysql_query(con, requette)){
          finish_with_error(con);
      }
 
@@ -87,34 +90,32 @@ void login(GtkWidget *W,GtkEntry *data) {
         finish_with_error(con);
     }
 
-    int num_fields = mysql_num_fields(result);
-
     MYSQL_ROW row;
-int i;
+
     while ((row = mysql_fetch_row(result)))
     {
-        printf("%s",row[i] );
-        printf("%s",gtk_entry_get_text(entry_password) );
-            if ( gtk_entry_get_text(entry_password) == row[i]){
-                printf("vous etes connecte!");
-            }else{
-                printf("erreur de username ou password");
-            }
-    }
+        sprintf(pass, "%s" , row[3]);
+        sprintf(pass_entry, "%s",gtk_entry_get_text(entry_password)) ;
 
+        if (strcmp(pass ,pass_entry ) == 0){
+            printf("vous etes connecte!");
+        }else{
+            printf("erreur de username ou password");
+        }
+    }
     mysql_free_result(result);
     mysql_close(con);
 
     exit(0);
 }
 
-char username_con[255];
 
 
 
-void login_console(char * password_con ) {
+
+int login_console(char * password_con, char * username_con ) {
     char requette[50] ;
-    MYSQL mysql;
+
     MYSQL *con = mysql_init(NULL);
     if (con == NULL) {
         fprintf(stderr, "mysql_init() failed\n");
@@ -125,9 +126,8 @@ void login_console(char * password_con ) {
         finish_with_error(con);
     }
 
-   // sprintf(requette, "SELECT password FROM account WHERE username ='%s'", 'lyes' );
-
-    if ( mysql_query(con, "SELECT password FROM account WHERE username ='lyes'" )){
+    sprintf(requette, "SELECT * FROM account WHERE username = '%s'", username_con );
+    if ( mysql_query(con, requette)){
         finish_with_error(con);
     }
 
@@ -138,21 +138,19 @@ void login_console(char * password_con ) {
         finish_with_error(con);
     }
 
-    int num_fields = mysql_num_fields(result);
-
     MYSQL_ROW row;
-    int i;
+
     while ((row = mysql_fetch_row(result)))
     {
-        printf("%s",row[i] );
-        printf("%s",password_con );
-        if ( password_con == row[i]){
-            printf("vous etes connecte!");
+        sprintf(pass, "%s" , row[3]);
+        sprintf(pass_entry, "%s",password_con) ;
+
+        if (strcmp(pass ,pass_entry ) == 0){
+            return 0 ;
         }else{
-            printf("erreur de username ou password");
+            return 1 ;
         }
     }
-
     mysql_free_result(result);
     mysql_close(con);
 
@@ -178,65 +176,28 @@ void on_menu_quit_activate (void)
 
     int main(int argc, char **argv) {
         int reponse;
-        char password_con[255];
+        char username_con[255] ;
+        char password_con[255] ;
 
         char requette[50] ;
         //demande a l'utilisateur
-        printf("Tappez 1 pour interface graphique \n Tappez 2 pour lignes de commandes\n");
+        printf("Tappez 1 pour lignes de commandes  \n Tappez 2 pour interface graphique\n");
         scanf("%d", &reponse);
 
 
         //1 pour console
         if (reponse == 1 ){
 
-            printf("entrez le password");
-            fgets(password_con, 255, stdin);
+            printf("enter your username ");
+            scanf("%s", username_con);
 
+            printf("enter your password ");
+            scanf("%s", password_con);
 
-
-
-            MYSQL *con = mysql_init(NULL);
-            if (con == NULL) {
-                fprintf(stderr, "mysql_init() failed\n");
-                exit(1);
-            }
-
-            if (mysql_real_connect(con, "localhost", "root", "mysql2016", "notebook", 3306, NULL, 0) == NULL) {
-                finish_with_error(con);
-            }
-
-            // sprintf(requette, "SELECT password FROM account WHERE username ='%s'", 'lyes' );
-
-            if ( mysql_query(con, "SELECT password FROM account WHERE user_id = 1 " )){
-                finish_with_error(con);
-            }
-
-            MYSQL_RES *result = mysql_store_result(con);
-
-            if (result == NULL)
-            {
-                finish_with_error(con);
-            }
-
-            int num_fields = mysql_num_fields(result);
-
-            MYSQL_ROW row;
-            int i;
-            while ((row = mysql_fetch_row(result)))
-            {
-                printf("%s",row[i] );
-
-
-            }
-
-            mysql_free_result(result);
-            mysql_close(con);
+            if (login_console(password_con, username_con ) == 0 ){
 
 
             int ch;
-
-
-
 
             printf("\n\n\t***********************************\n");
 
@@ -324,7 +285,9 @@ void on_menu_quit_activate (void)
 */
             }
             return 0;
-        }
+        }else {
+                printf("username or password incorrect !!");
+            }}
 
 
         //2 pour GI
