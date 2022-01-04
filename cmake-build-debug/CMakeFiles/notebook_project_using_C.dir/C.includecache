@@ -19,6 +19,8 @@ gtk/gtk.h
 -
 sys/stat.h
 -
+curses.h
+-
 
 /usr/local/Cellar/atk/2.36.0/include/atk-1.0/atk/atk-enum-types.h
 atk/atkversion.h

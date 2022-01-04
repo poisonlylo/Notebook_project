@@ -4,7 +4,14 @@
 #include <string.h>
 #include <gtk/gtk.h>
 #include <sys/stat.h>
+#include<curses.h>
+#define getch() wgetch(stdscr)
 
+struct info{
+    char name[30];
+    char time[6];
+    char note[500];
+} ;
 
 GtkBuilder *builder;
 GtkBuilder *builder2;
@@ -16,6 +23,112 @@ GtkEntry *entry_username, *entry_password;
 char pass[50];
 char pass_entry[50];
 
+void add_note( ){
+
+    FILE *fp ;
+    struct info e ;
+
+    char another = 'O' ,time[10];
+    char filename[15];
+    int choice;
+
+    printf("\n\n\tEntrez la date:[jj-mm-aaaa]:");
+
+    fflush(stdin);
+
+    gets(filename);
+
+    fp = fopen (filename, "ab+" ) ;
+
+    if ( fp == NULL )
+
+    {
+
+        fp=fopen(filename,"wb+");
+
+        if(fp==NULL)
+
+        {
+
+            printf("\nSYSTEM ERROR...");
+
+            printf("\nPRESS ANY KEY TO EXIT");
+
+
+
+            return ;
+
+        }
+
+    }
+
+    while ( another == 'O'|| another=='o' )
+
+    {
+
+        choice=0;
+
+        fflush(stdin);
+
+        printf ( "\n\tEntrez le temps:[hh:mm]:");
+
+        scanf("%s",time);
+
+        rewind(fp);
+
+        while(fread(&e,sizeof(e),1,fp)==1)
+
+        {
+
+            if(strcmp(e.time,time)==0)
+
+            {
+
+                printf("\n\tLa note existe deja.\n");
+
+                choice=1;
+
+            }
+
+        }
+
+        if(choice==0)
+
+        {
+
+            strcpy(e.time,time);
+
+            printf("\tEntrez le nom:");
+
+            fflush(stdin);
+
+            gets(e.name);
+
+            fflush(stdin);
+
+
+            printf("\tNote:");
+
+            gets(e.note);
+
+            fwrite ( &e, sizeof ( e ), 1, fp ) ;
+
+            printf("\nLa note est ajoutée...\n");
+
+        }
+
+        printf ( "\n\tAjouter une nouvelle note...(O/N) " ) ;
+
+        fflush ( stdin ) ;
+
+        another = getchar( ) ;
+
+    }
+
+    fclose ( fp ) ;
+    printf("\n\n\tPRESS ANY KEY TO EXIT...");
+
+}
 
 void button_pressed(GtkWidget *W,GtkEntry *data) {
     int id;
@@ -225,7 +338,7 @@ int main(int argc, char **argv) {
                 printf("enter your password ");
                 scanf("%s", &password_con);
 
-                if (login_console(password_con, username_con ) == 0 ){
+                if (login_console(password_con, username_con) == 0 ){
 
                     opendir(username_con);
 
@@ -243,7 +356,7 @@ int main(int argc, char **argv) {
 
                     printf("\n\n\t\tMENU PRINCIPAL:");
 
-                    printf("\n\n\tAJOUTER UN DOSSIER\t[1]");
+                    printf("\n\n\tAjouter une note\t[1]");
 
                     printf("\n\tOUVRIR UN DOSSIER\t[2]");
 
@@ -258,18 +371,18 @@ int main(int argc, char **argv) {
                     printf("\n\n\tSAISISSEZ VOTRE CHOIX :");
 
                     scanf("%d",&ch);
-    /*
+
                     switch(ch)
 
                     {
 
                         case 1:
 
-                            addrecord();
+                            add_note();
 
                             break;
 
-                        case 2:
+                  /*      case 2:
 
                             viewrecord();
 
@@ -292,12 +405,13 @@ int main(int argc, char **argv) {
                             editpassword();
 
                             break;
+                            */
 
                         case 6:
 
                             printf("\n\n\t\tTHANK YOU FOR USING THE SOFTWARE ");
 
-                            getch();
+
 
                             exit(0);
 
@@ -307,14 +421,14 @@ int main(int argc, char **argv) {
 
                             printf("\nPRESS ANY KEY TO TRY AGAIN");
 
-                            getch();
+
 
                             break;
 
                     }
 
                     system("cls");
-    */
+
                 }
                 return 0;
             }
