@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <gtk/gtk.h>
+#include <sys/stat.h>
 
 
 GtkBuilder *builder;
@@ -12,15 +13,11 @@ GtkWidget *app2;
 GtkWidget *window2;
 GtkEntry *tx_surname, *tx_email, *tx_password ;
 GtkEntry *entry_username, *entry_password;
-
+char pass[50];
+char pass_entry[50];
 
 
 void button_pressed(GtkWidget *W,GtkEntry *data) {
-    char username[255];
-    char password[255];
-    char user[15];
-    char pass[12];
-    char email[255];
     int id;
     char requete[255];
 
@@ -36,6 +33,8 @@ void button_pressed(GtkWidget *W,GtkEntry *data) {
                 id,gtk_entry_get_text(tx_surname), gtk_entry_get_text(tx_email), gtk_entry_get_text(tx_password));
 
         mysql_query(&mysql, requete);
+        mkdir(gtk_entry_get_text(tx_surname), S_IRWXU);
+        exit(EXIT_SUCCESS);
 
     }
     else
@@ -43,14 +42,9 @@ void button_pressed(GtkWidget *W,GtkEntry *data) {
         printf("Une erreur s'est produite lors de la connexion à la BDD!");
     }
 }
+
 void close_window(){
     gtk_main_quit();
-}
-
-void show_page(GtkWidget *W,GtkEntry *data){
-
-    gtk_widget_show_all (data);
-
 }
 
 void finish_with_error(MYSQL *con)
@@ -59,9 +53,6 @@ void finish_with_error(MYSQL *con)
     mysql_close(con);
     exit(1);
 }
-
-char pass[50];
-char pass_entry[50];
 
 void login(GtkWidget *W,GtkEntry *data) {
     char requette[255];
@@ -109,10 +100,6 @@ void login(GtkWidget *W,GtkEntry *data) {
     exit(0);
 }
 
-
-
-
-
 int login_console(char * password_con, char * username_con ) {
     char requette[50] ;
 
@@ -157,6 +144,33 @@ int login_console(char * password_con, char * username_con ) {
     exit(0);
 }
 
+void regestration_console(char *username, char *email, char *password){
+
+    int id;
+    char requete[255];
+
+    MYSQL mysql;
+    mysql_init(&mysql);
+    mysql_options(&mysql,MYSQL_READ_DEFAULT_GROUP,"option");
+
+
+    if(mysql_real_connect(&mysql,"localhost","root","mysql2016","notebook",3306,NULL,0))
+    {
+
+        sprintf(requete, "INSERT INTO account(user_id, username, email, password) VALUES('%d','%s', '%s', '%s')",
+                id,username, email, password);
+
+        mysql_query(&mysql, requete);
+        mkdir(username, S_IRWXU);
+        exit(EXIT_SUCCESS);
+
+    }
+    else
+    {
+        printf("Une erreur s'est produite lors de la connexion à la BDD!");
+    }
+}
+
 G_MODULE_EXPORT
 void on_app_destroy (void)
 {
@@ -171,15 +185,16 @@ void on_menu_quit_activate (void)
 }
 
 
-
-
-
-    int main(int argc, char **argv) {
+int main(int argc, char **argv) {
         int reponse;
+        int reponse_insc;
         char username_con[255] ;
         char password_con[255] ;
+        char insc_email[255];
+        char insc_password[255];
+        char insc_username[255];
 
-        char requette[50] ;
+
         //demande a l'utilisateur
         printf("Tappez 1 pour lignes de commandes  \n Tappez 2 pour interface graphique\n");
         scanf("%d", &reponse);
@@ -188,106 +203,126 @@ void on_menu_quit_activate (void)
         //1 pour console
         if (reponse == 1 ){
 
-            printf("enter your username ");
-            scanf("%s", username_con);
+            printf("Tappez 1 pour INSCRIPTION ou 2 pour CONNEXION \n");
+            scanf("%d", &reponse_insc);
 
-            printf("enter your password ");
-            scanf("%s", password_con);
+            if (reponse_insc == 1){
+                printf("Entrez votre Username");
+                scanf("%s", insc_username);
 
-            if (login_console(password_con, username_con ) == 0 ){
+                printf("Entrez votre Email");
+                scanf("%s", insc_email);
 
+                printf("Entrez votre Mot de passe");
+                scanf("%s", insc_password);
 
-            int ch;
+                regestration_console(insc_username, insc_email, insc_password);
+            }
+            else{
+                printf("enter your username ");
+                scanf("%s", &username_con);
 
-            printf("\n\n\t***********************************\n");
+                printf("enter your password ");
+                scanf("%s", &password_con);
 
-            printf("\t*Block Notes Personnel*\n");
+                if (login_console(password_con, username_con ) == 0 ){
 
-            printf("\t***********************************");
+                    opendir(username_con);
 
-            while(1)
+                int ch;
 
-            {
+                printf("\n\n\t***********************************\n");
 
-                printf("\n\n\t\tMENU PRINCIPAL:");
+                printf("\t*Block Notes Personnel*\n");
 
-                printf("\n\n\tAJOUTER UN DOSSIER\t[1]");
+                printf("\t***********************************");
 
-                printf("\n\tOUVRIR UN DOSSIER\t[2]");
-
-                printf("\n\tMODIFIER UN DOSSIER\t[3]");
-
-                printf("\n\tSUPPRIMER UN DOSSIER\t[4]");
-
-                printf("\n\tMODIFIER LE MOT DE PASSE\t[5]");
-
-                printf("\n\tSORTIE\t\t[6]");
-
-                printf("\n\n\tSAISISSEZ VOTRE CHOIX :");
-
-                scanf("%d",&ch);
-/*
-                switch(ch)
+                while(1)
 
                 {
 
-                    case 1:
+                    printf("\n\n\t\tMENU PRINCIPAL:");
 
-                        addrecord();
+                    printf("\n\n\tAJOUTER UN DOSSIER\t[1]");
 
-                        break;
+                    printf("\n\tOUVRIR UN DOSSIER\t[2]");
 
-                    case 2:
+                    printf("\n\tMODIFIER UN DOSSIER\t[3]");
 
-                        viewrecord();
+                    printf("\n\tSUPPRIMER UN DOSSIER\t[4]");
 
-                        break;
+                    printf("\n\tMODIFIER LE MOT DE PASSE\t[5]");
 
-                    case 3:
+                    printf("\n\tSORTIE\t\t[6]");
 
-                        editrecord();
+                    printf("\n\n\tSAISISSEZ VOTRE CHOIX :");
 
-                        break;
+                    scanf("%d",&ch);
+    /*
+                    switch(ch)
 
-                    case 4:
+                    {
 
-                        deleterecord();
+                        case 1:
 
-                        break;
+                            addrecord();
 
-                    case 5:
+                            break;
 
-                        editpassword();
+                        case 2:
 
-                        break;
+                            viewrecord();
 
-                    case 6:
+                            break;
 
-                        printf("\n\n\t\tTHANK YOU FOR USING THE SOFTWARE ");
+                        case 3:
 
-                        getch();
+                            editrecord();
 
-                        exit(0);
+                            break;
 
-                    default:
+                        case 4:
 
-                        printf("\nYOU ENTERED WRONG CHOICE..");
+                            deleterecord();
 
-                        printf("\nPRESS ANY KEY TO TRY AGAIN");
+                            break;
 
-                        getch();
+                        case 5:
 
-                        break;
+                            editpassword();
 
+                            break;
+
+                        case 6:
+
+                            printf("\n\n\t\tTHANK YOU FOR USING THE SOFTWARE ");
+
+                            getch();
+
+                            exit(0);
+
+                        default:
+
+                            printf("\nYOU ENTERED WRONG CHOICE..");
+
+                            printf("\nPRESS ANY KEY TO TRY AGAIN");
+
+                            getch();
+
+                            break;
+
+                    }
+
+                    system("cls");
+    */
                 }
-
-                system("cls");
-*/
+                return 0;
             }
-            return 0;
-        }else {
+                else {
                 printf("username or password incorrect !!");
-            }}
+            }
+           }
+        }
 
 
         //2 pour GI
@@ -338,56 +373,6 @@ void on_menu_quit_activate (void)
     }
 
 
-
-
-
-
-
-
-
-/*
-
-        char username[255];
-        char password[255];
-        char user[15];
-        char pass[12];
-        char email[255];
-        int id;
-        char requete[255];
-
-
-
-
-
-        printf("enter your email\n");
-        fgets(email, 255, stdin);
-        if(email[strlen(email)-1] == "\n") email[strlen(email)-1] = "\0";
-        printf("enter your password\n");
-        fgets(password, 255, stdin);
-        printf("enter your username\n");
-        fgets(username, 255, stdin);
-
-
-
-        MYSQL mysql;
-        mysql_init(&mysql);
-        mysql_options(&mysql,MYSQL_READ_DEFAULT_GROUP,"option");
-
-
-        if(mysql_real_connect(&mysql,"localhost","root","mysql2016","notebook",3306,NULL,0))
-        {
-
-            sprintf(requete, "INSERT INTO account(user_id , username, email, password) VALUES('%d', '%s', '%s', '%s')", id,username, email, password );
-
-            mysql_query(&mysql, requete);
-
-        }
-        else
-        {
-            printf("Une erreur s'est produite lors de la connexion à la BDD!");
-        }
-
-*/
 
 
 
