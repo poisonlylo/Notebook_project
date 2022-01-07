@@ -10,7 +10,7 @@
 struct info{
     char name[30];
     char time[6];
-    char note[500];
+    FILE *fp_info;
 } ;
 
 GtkBuilder *builder;
@@ -40,25 +40,15 @@ void add_note( ){
 
     fp = fopen (filename, "ab+" ) ;
 
-    if ( fp == NULL )
-
-    {
+    if ( fp == NULL){
 
         fp=fopen(filename,"wb+");
 
-        if(fp==NULL)
-
-        {
-
+     /*   if(fp==NULL){
             printf("\nSYSTEM ERROR...");
-
             printf("\nPRESS ANY KEY TO EXIT");
-
-
-
             return ;
-
-        }
+        } */
 
     }
 
@@ -108,10 +98,11 @@ void add_note( ){
 
 
             printf("\tNote:");
+            fopen(e.name, "ab+");
+            gets(e.fp_info);
+            fclose(e.fp_info);
 
-            gets(e.note);
-
-            fwrite ( &e, sizeof ( e ), 1, fp ) ;
+            fwrite( &e, sizeof (e), 1, fp ) ;
 
             printf("\nLa note est ajoutée...\n");
 
@@ -126,10 +117,268 @@ void add_note( ){
     }
 
     fclose ( fp ) ;
-    printf("\n\n\tPRESS ANY KEY TO EXIT...");
+
 
 }
 
+/*
+void editrecord()
+
+{
+
+    system("cls");
+
+    FILE *fpte ;
+
+    struct info e ;
+
+    char time[6],choice,filename[14];
+
+    int num,count=0;
+
+    printf("\n\n\t\t*******************************\n");
+
+    printf("\t\t* WELCOME TO THE EDITING MENU *");
+
+    printf("\n\t\t*******************************\n\n");
+
+    choice=password();
+
+    if(choice!=0)
+
+    {
+
+        return ;
+
+    }
+
+    do
+
+    {
+
+        printf("\n\tEntrez la date de la note que vous voulez modifier:[jj-mm-aaaa]:");
+
+        fflush(stdin);
+
+        gets(filename);
+
+        printf("\n\tEntrez le moment:[hh:mm]:");
+
+        gets(time);
+
+        fpte = fopen ( filename, "rb+" ) ;
+
+        if ( fpte == NULL )
+
+        {
+
+            printf( "\nLa note n'existe pas:" ) ;
+
+            printf("\nPRESS ANY KEY TO GO BACK");
+
+            getch();
+
+            return;
+
+        }
+
+        while ( fread ( &e, sizeof ( e ), 1, fpte ) == 1 )
+
+        {
+
+            if(strcmp(e.time,time)==0)
+
+            {
+
+
+                printf("\n\n\t\tQue est ce que vous voulez modifier?");
+
+                printf("\n1.Moment.");
+                printf("\n2.Note.");
+                printf("\n3.Date.");
+
+                do{
+
+                    printf("\n\tEntrez votre choix:");
+
+                    fflush(stdin);
+
+                    scanf("%d",&num);
+
+                    fflush(stdin);
+
+                    switch(num)
+
+                    {
+
+                        case 1:
+                            printf("\nEntrez le moment:");
+                            gets(e.time);
+
+                            break;
+
+                        case 2:
+                            printf("\nEntrez votre note:");
+                            gets(e.note);
+
+                            break;
+
+                        case 3:
+                            printf("\nENTER THE NEW DATA:");
+
+                            printf("\nNEW MEETING PLACE:");
+
+                            gets(customer.place);
+
+                            break;
+
+                        case 4:
+                            printf("\nENTER THE NEW DATA:");
+
+                            printf("\nDURATION:");
+
+                            gets(customer.duration);
+
+                            break;
+
+                        case 5:
+                            printf("ENTER THE NEW DATA:");
+
+                            printf("\nNOTE:");
+
+                            gets(customer.note);
+
+                            break;
+
+                        case 6:
+                            printf("\nENTER THE NEW DATA:");
+
+                            printf("\nNEW TIME:[hh:mm]:");
+
+                            gets(customer.time);
+
+                            printf("\nNEW MEETING PERSON:");
+
+                            gets(customer.name);
+
+                            printf("\nNEW MEETING PLACE:");
+
+                            gets(customer.place);
+
+                            printf("\nDURATION:");
+
+                            gets(customer.duration);
+
+                            printf("\nNOTE:");
+
+                            gets(customer.note);
+
+                            break;
+
+                        case 7:
+                            printf("\nPRESS ANY KEY TO GO BACK...\n");
+
+                            getch();
+
+                            return ;
+
+                            break;
+
+                        default:
+                            printf("\nYOU TYPED SOMETHING ELSE...TRY AGAIN\n");
+
+                            break;
+
+                    }
+
+                }
+                while(num<1||num>8);
+
+                fseek(fpte,-sizeof(customer),SEEK_CUR);
+
+                fwrite(&customer,sizeof(customer),1,fpte);
+
+                fseek(fpte,-sizeof(customer),SEEK_CUR);
+
+                fread(&customer,sizeof(customer),1,fpte);
+
+                choice=5;
+
+                break;
+
+            }
+
+        }
+
+        if(choice==5)
+
+        {
+
+            system("cls");
+
+            printf("\n\t\tEDITING COMPLETED...\n");
+
+            printf("--------------------\n");
+
+            printf("THE NEW RECORD IS:\n");
+
+            printf("--------------------\n");
+
+            printf("\nTIME: %s",customer.time);
+
+            printf("\nMEETING WITH: %s",customer.name);
+
+            printf("\nMEETING AT: %s",customer.place);
+
+            printf("\nDURATION: %s",customer.duration);
+
+            printf("\nNOTE: %s",customer.note);
+
+            fclose(fpte);
+
+            printf("\n\n\tWOULD YOU LIKE TO EDIT ANOTHER RECORD.(Y/N)");
+
+            scanf("%c",&choice);
+
+            count++;
+
+        }
+
+        else
+
+        {
+
+            printf("\nTHE RECORD DOES NOT EXIST::\n");
+
+            printf("\nWOULD YOU LIKE TO TRY AGAIN...(Y/N)");
+
+            scanf("%c",&choice);
+
+        }
+
+    }
+    while(choice=='Y'||choice=='y');
+
+    fclose ( fpte ) ;
+
+    if(count==1)
+
+        printf("\n%d FILE IS EDITED...\n",count);
+
+    else if(count>1)
+
+        printf("\n%d FILES ARE EDITED..\n",count);
+
+    else
+
+        printf("\nNO FILES EDITED...\n");
+
+    printf("\tPRESS ENTER TO EXIT EDITING MENU.");
+
+    getch();
+
+}
+*/
 void button_pressed(GtkWidget *W,GtkEntry *data) {
     int id;
     char requete[255];

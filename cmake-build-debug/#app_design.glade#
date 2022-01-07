@@ -237,6 +237,12 @@
       </object>
     </child>
   </object>
+  <object class="GtkOffscreenWindow">
+    <property name="can-focus">False</property>
+    <child>
+      <placeholder/>
+    </child>
+  </object>
   <object class="GtkWindow" id="window1">
     <property name="name">window1</property>
     <property name="can-focus">False</property>
