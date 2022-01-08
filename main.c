@@ -23,7 +23,8 @@ void close_tab(GtkWidget *button, gpointer data){
 }
 
 void add_tab(char *name){
-GtkWidget *textview = gtk_text_view_new();
+    char texte[255];
+    GtkWidget *textview = gtk_text_view_new();
 GtkWidget *text = gtk_label_new(name);
 GtkWidget *label = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
 GtkWidget *icon = gtk_image_new_from_file("close.png");
@@ -36,6 +37,14 @@ GtkWidget *scroll_window = gtk_scrolled_window_new(NULL, NULL);
     gtk_container_add(scroll_window, textview);
     gtk_notebook_append_page(GTK_NOTEBOOK(notebook), scroll_window, label);
     g_signal_connect(button, "clicked", G_CALLBACK(close_tab), NULL);
+
+    FILE *fp = fopen(name,"wb+");
+    fputs(text, fp);
+    fgets(texte, 155, fp);
+    printf("%s", texte);
+    fclose(fp);
+
+
     gtk_widget_show_all(label);
     gtk_widget_show_all(scroll_window);
 
@@ -62,7 +71,6 @@ void button_click(GtkWidget *button, gpointer data){
     char *btn = (char*)data ;
     if (strcmp(btn, "new") == 0) add_tab("new tab");
     if (strcmp(btn, "open") == 0) open_file_dialog();
-
 }
 
 
@@ -108,7 +116,7 @@ void make_window(){
 
 
 
-}
+
 
     int main(int argc, char **argv){
 
@@ -162,4 +170,5 @@ void make_window(){
 return 0;
 
     }
+
 
