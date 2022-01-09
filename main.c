@@ -8,11 +8,13 @@
 
 GtkBuilder *builder;
 GtkBuilder *builder2;
+GtkBuilder *builder3;
 GtkWidget *app;
 GtkWidget *app2;
 GtkWidget *window2;
 GtkEntry *tx_surname, *tx_email, *tx_password ;
 GtkEntry *entry_username, *entry_password;
+GtkWidget *notebook;
 char pass[50];
 char pass_entry[50];
 
@@ -43,8 +45,116 @@ void button_pressed(GtkWidget *W,GtkEntry *data) {
     }
 }
 
-void close_window(){
+void close_window() {
     gtk_main_quit();
+}
+
+
+typedef struct{
+    char *label;
+    char sub_items;
+    char sub_menu[6][15];
+}MuButton;
+
+MuButton menulist[] = {
+          {"file", 6, {"new", "open","save", "save as", "close", "quit" }},
+         {"edit", 4,{"copy", "paste","cut", "delete"} }
+};
+
+void close_tab(GtkWidget *button, gpointer data){
+    int pg_num = gtk_notebook_page_num(GTK_NOTEBOOK(notebook), data);
+    gtk_notebook_remove_page(notebook, pg_num); 
+}
+
+void add_tab(char *name){
+    char texte[255];
+    GtkWidget *textview = gtk_text_view_new();
+GtkWidget *text = gtk_label_new(name);
+GtkWidget *label = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
+GtkWidget *icon = gtk_image_new_from_file("close.png");
+GtkWidget *button = gtk_button_new();
+gtk_button_set_image(GTK_BUTTON(button), icon);
+gtk_box_pack_start(label,text, TRUE, TRUE, 0);
+gtk_box_pack_start(label,button, FALSE, FALSE, 0);
+
+GtkWidget *scroll_window = gtk_scrolled_window_new(NULL, NULL);
+    gtk_container_add(scroll_window, textview);
+    gtk_notebook_append_page(GTK_NOTEBOOK(notebook), scroll_window, label);
+    g_signal_connect(button, "clicked", G_CALLBACK(close_tab), NULL);
+
+    FILE *fp = fopen(name,"wb+");
+    fputs(text, fp);
+    fgets(texte, 155, fp);
+    printf("%s", texte);
+    fclose(fp);
+
+
+    gtk_widget_show_all(label);
+    gtk_widget_show_all(scroll_window);
+
+}
+
+void open_file(void *file_address){
+    g_print("%s", file_address);
+}
+void open_file_dialog(){
+    GtkWidget *open_dialog;
+    int res;
+    open_dialog = gtk_file_chooser_dialog_new("open_file", NULL, GTK_FILE_CHOOSER_ACTION_OPEN,  "Cancel", GTK_RESPONSE_CANCEL, "Open", GTK_RESPONSE_ACCEPT, NULL );
+    res = gtk_dialog_run(GTK_DIALOG(open_dialog));
+   if (res == GTK_RESPONSE_ACCEPT){
+       char *file_address;
+       GtkFileChooser *chooser = GTK_FILE_CHOOSER(open_dialog);
+       file_address = gtk_file_chooser_get_filename(chooser);
+       open_file(file_address);
+       free(file_address);
+   }
+   gtk_widget_destroy(open_dialog);
+}
+void button_click(GtkWidget *button, gpointer data){
+    char *btn = (char*)data ;
+    if (strcmp(btn, "new") == 0) add_tab("new tab");
+    if (strcmp(btn, "open") == 0) open_file_dialog();
+}
+
+
+
+void make_notebook(GtkWidget *vbox){
+ notebook = gtk_notebook_new();
+    gtk_box_pack_start(vbox,  notebook, TRUE, TRUE, 0);
+    add_tab("untiteled");
+}
+
+void make_menu(GtkWidget *vbox){
+    GtkWidget *menubar = gtk_menu_bar_new();
+    for (int i = 0; i < 7; ++i) {
+        GtkWidget *item = gtk_menu_item_new_with_label(menulist[i].label);
+        GtkWidget *item_menu = gtk_menu_new();
+        gtk_menu_shell_append(GTK_MENU_SHELL(menubar), item);
+        gtk_menu_item_set_submenu(GTK_MENU_ITEM(item), item_menu);
+        for (int j = 0; j < menulist->sub_items; ++j) {
+            GtkWidget *subitem = gtk_menu_item_new_with_label(menulist[i].sub_menu[j]);
+            g_signal_connect(GTK_WIDGET(subitem), "activate", G_CALLBACK(button_click),menulist[i].sub_menu[j] );
+            gtk_menu_shell_append(GTK_MENU_SHELL(item_menu), subitem);
+
+        }
+    }
+    gtk_container_add(GTK_CONTAINER(vbox), menubar);
+}
+
+void make_window(){
+    GtkWidget *window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
+    gtk_window_set_default_size(GTK_WINDOW(window), 800, 800);
+    gtk_window_set_title(GTK_WINDOW(window), "NoteBook");
+    g_signal_connect(G_OBJECT(window), "destroy", G_CALLBACK(close_window), NULL);
+
+    GtkWidget *vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);
+    gtk_container_add(GTK_CONTAINER(window), vbox);
+    make_menu(vbox);
+    make_notebook(vbox);
+    gtk_widget_show_all(window);
+
 }
 
 void finish_with_error(MYSQL *con)
@@ -54,7 +164,12 @@ void finish_with_error(MYSQL *con)
     exit(1);
 }
 
-void login(GtkWidget *W,GtkEntry *data) {
+void show_page(GtkWidget *window2) {
+    gtk_widget_show(window2);
+}
+
+
+int login() {
     char requette[255];
     char password[255];
     char username[255];
@@ -89,15 +204,30 @@ void login(GtkWidget *W,GtkEntry *data) {
         sprintf(pass_entry, "%s",gtk_entry_get_text(entry_password)) ;
 
         if (strcmp(pass ,pass_entry ) == 0){
-            printf("vous etes connecte!");
+            return 1;
         }else{
-            printf("erreur de username ou password");
+            return 0;
         }
     }
     mysql_free_result(result);
     mysql_close(con);
 
     exit(0);
+}
+
+void main_window(* argc, *argv){
+    g_log_set_handler ("Gtk", G_LOG_LEVEL_WARNING, (GLogFunc) gtk_false, NULL);
+    gtk_init (&argc, &argv);
+    g_log_set_handler ("Gtk", G_LOG_LEVEL_WARNING, g_log_default_handler, NULL);
+    builder3 = gtk_builder_new ();
+    gtk_builder_add_from_file (builder3, "../menu.glade", NULL);
+    app2 = GTK_WIDGET (gtk_builder_get_object (builder3, "welcoming_window"));
+
+    gtk_builder_connect_signals (builder3, NULL);
+
+    g_object_unref (G_OBJECT (builder3));
+    gtk_widget_show(app2);
+    gtk_main ();
 }
 
 int login_console(char * password_con, char * username_con ) {
@@ -194,7 +324,6 @@ int main(int argc, char **argv) {
         char insc_password[255];
         char insc_username[255];
 
-
         //demande a l'utilisateur
         printf("Tappez 1 pour lignes de commandes  \n Tappez 2 pour interface graphique\n");
         scanf("%d", &reponse);
@@ -243,17 +372,15 @@ int main(int argc, char **argv) {
 
                     printf("\n\n\t\tMENU PRINCIPAL:");
 
-                    printf("\n\n\tAJOUTER UN DOSSIER\t[1]");
+                    printf("\n\n\tqjouter une note\t[1]");
 
-                    printf("\n\tOUVRIR UN DOSSIER\t[2]");
+                    printf("\n\tOuvrir une note\t[2]");
 
-                    printf("\n\tMODIFIER UN DOSSIER\t[3]");
+                    printf("\n\tModifier une note\t[3]");
 
-                    printf("\n\tSUPPRIMER UN DOSSIER\t[4]");
+                    printf("\n\tSupprimer une note\t[4]");
 
-                    printf("\n\tMODIFIER LE MOT DE PASSE\t[5]");
-
-                    printf("\n\tSORTIE\t\t[6]");
+                    printf("\n\tSORTIE\t\t[5]");
 
                     printf("\n\n\tSAISISSEZ VOTRE CHOIX :");
 
@@ -265,35 +392,29 @@ int main(int argc, char **argv) {
 
                         case 1:
 
-                            addrecord();
+                            add_note();
 
                             break;
 
                         case 2:
 
-                            viewrecord();
+                            view_note();
 
                             break;
 
                         case 3:
 
-                            editrecord();
+                            edit_note();
 
                             break;
 
                         case 4:
 
-                            deleterecord();
+                            delete_note();
 
                             break;
 
                         case 5:
-
-                            editpassword();
-
-                            break;
-
-                        case 6:
 
                             printf("\n\n\t\tTHANK YOU FOR USING THE SOFTWARE ");
 
@@ -303,9 +424,9 @@ int main(int argc, char **argv) {
 
                         default:
 
-                            printf("\nYOU ENTERED WRONG CHOICE..");
+                            printf("\nCe choix n'existe pas ..");
 
-                            printf("\nPRESS ANY KEY TO TRY AGAIN");
+                            printf("\nRetappez un autre chiffre);
 
                             getch();
 
@@ -353,27 +474,28 @@ int main(int argc, char **argv) {
         gtk_builder_connect_signals (builder2, NULL);
             entry_username = gtk_builder_get_object(builder, "entry_username");
             entry_password = gtk_builder_get_object(builder, "entry_password");
+
         GtkWidget *btn_login = gtk_builder_get_object(builder, "btn_login");
         g_signal_connect(btn_login, "clicked", G_CALLBACK(login), entry_username);
         g_signal_connect(btn_login, "clicked", G_CALLBACK(login), entry_password);
 
+        GtkWidget *button_next_page = gtk_builder_get_object(builder, "button_next_page");
+        g_signal_connect(button_next_page, "clicked", G_CALLBACK(show_page), window2);
 
         g_object_unref (G_OBJECT (builder));
         g_object_unref (G_OBJECT (builder2));
 
-
         gtk_widget_show (app);
-
-
         gtk_main ();
-
+/*
+        if (login() == 1){
+            printf("vous etes connecte");
+        }else {
+            printf("fausse manip");
+        }
+*/
             return 0;
         }
 
     }
-
-
-
-
-
 
