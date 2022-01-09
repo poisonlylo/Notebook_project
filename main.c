@@ -9,8 +9,9 @@
 
 struct info{
     char name[30];
+    char date[30];
     char time[6];
-    FILE *fp_info;
+    char note[255];
 } ;
 
 GtkBuilder *builder;
@@ -44,11 +45,11 @@ void add_note( ){
 
         fp=fopen(filename,"wb+");
 
-     /*   if(fp==NULL){
+    if(fp==NULL){
             printf("\nSYSTEM ERROR...");
             printf("\nPRESS ANY KEY TO EXIT");
             return ;
-        } */
+        }
 
     }
 
@@ -98,9 +99,9 @@ void add_note( ){
 
 
             printf("\tNote:");
-            fopen(e.name, "ab+");
-            gets(e.fp_info);
-            fclose(e.fp_info);
+
+            gets(e.note);
+
 
             fwrite( &e, sizeof (e), 1, fp ) ;
 
@@ -121,12 +122,93 @@ void add_note( ){
 
 }
 
-/*
-void editrecord()
+  void view_note( )
 
 {
 
-    system("cls");
+    FILE *fpte ;
+
+    struct info e ;
+
+    char time[6],choice,filename[14];
+
+    int ch;
+
+    printf("\n\n\t\t*******************************\n");
+
+    printf("\t\t* HERE IS THE VIEWING MENU *");
+
+    printf("\n\t\t*******************************\n\n");
+
+    choice='O';
+
+
+
+    do
+
+    {
+
+        printf("\n\tEntrez la date de la note:[jj-mm-aaaa]:");
+
+        fflush(stdin);
+
+        gets(filename);
+
+        fpte = fopen ( filename, "rb" ) ;
+
+        if ( fpte == NULL )
+
+        {
+
+            puts ( "\nLa note n'exite pas...\n" ) ;
+
+
+
+            return ;
+
+        }
+
+
+        printf("\nVoici votre note de %s detaillé",filename);
+
+        while ( fread ( &e, sizeof ( e ), 1, fpte ) == 1 )
+
+        {
+
+            printf("\n");
+
+            printf("\nHeure: %s",e.time);
+
+
+            printf("\nNote: %s",e.note);
+
+            printf("\n");
+
+        }
+
+
+
+
+        printf("\n\nVoulez vous voir une autre note?(O/N):");
+
+        fflush(stdin);
+
+        scanf("%c",&choice);
+
+    }
+    while(choice=='O'||choice=='o');
+
+    fclose ( fpte ) ;
+
+    return ;
+
+}
+
+void edit_note()
+
+{
+
+
 
     FILE *fpte ;
 
@@ -142,7 +224,7 @@ void editrecord()
 
     printf("\n\t\t*******************************\n\n");
 
-    choice=password();
+    choice=0;
 
     if(choice!=0)
 
@@ -162,7 +244,7 @@ void editrecord()
 
         gets(filename);
 
-        printf("\n\tEntrez le moment:[hh:mm]:");
+        printf("\n\tEntrez l'heure:[hh:mm]:");
 
         gets(time);
 
@@ -193,7 +275,7 @@ void editrecord()
 
                 printf("\n\n\t\tQue est ce que vous voulez modifier?");
 
-                printf("\n1.Moment.");
+                printf("\n1.Heure.");
                 printf("\n2.Note.");
                 printf("\n3.Date.");
 
@@ -212,7 +294,7 @@ void editrecord()
                     {
 
                         case 1:
-                            printf("\nEntrez le moment:");
+                            printf("\nEntrez l'heure:");
                             gets(e.time);
 
                             break;
@@ -224,83 +306,28 @@ void editrecord()
                             break;
 
                         case 3:
-                            printf("\nENTER THE NEW DATA:");
-
-                            printf("\nNEW MEETING PLACE:");
-
-                            gets(customer.place);
+                            printf("\nEntrez la date:");
+                            gets(e.note);
 
                             break;
 
-                        case 4:
-                            printf("\nENTER THE NEW DATA:");
-
-                            printf("\nDURATION:");
-
-                            gets(customer.duration);
-
-                            break;
-
-                        case 5:
-                            printf("ENTER THE NEW DATA:");
-
-                            printf("\nNOTE:");
-
-                            gets(customer.note);
-
-                            break;
-
-                        case 6:
-                            printf("\nENTER THE NEW DATA:");
-
-                            printf("\nNEW TIME:[hh:mm]:");
-
-                            gets(customer.time);
-
-                            printf("\nNEW MEETING PERSON:");
-
-                            gets(customer.name);
-
-                            printf("\nNEW MEETING PLACE:");
-
-                            gets(customer.place);
-
-                            printf("\nDURATION:");
-
-                            gets(customer.duration);
-
-                            printf("\nNOTE:");
-
-                            gets(customer.note);
-
-                            break;
-
-                        case 7:
-                            printf("\nPRESS ANY KEY TO GO BACK...\n");
-
-                            getch();
-
-                            return ;
-
-                            break;
 
                         default:
-                            printf("\nYOU TYPED SOMETHING ELSE...TRY AGAIN\n");
+                            printf("\nFAUX! Retapper une nouvelle fois!\n");
 
                             break;
 
                     }
 
-                }
-                while(num<1||num>8);
+                } while(num<1||num>=4);
 
-                fseek(fpte,-sizeof(customer),SEEK_CUR);
+                fseek(fpte,-sizeof(e),SEEK_CUR);
 
-                fwrite(&customer,sizeof(customer),1,fpte);
+                fwrite(&e,sizeof(e),1,fpte);
 
-                fseek(fpte,-sizeof(customer),SEEK_CUR);
+                fseek(fpte,-sizeof(e),SEEK_CUR);
 
-                fread(&customer,sizeof(customer),1,fpte);
+                fread(&e,sizeof(e),1,fpte);
 
                 choice=5;
 
@@ -324,19 +351,15 @@ void editrecord()
 
             printf("--------------------\n");
 
-            printf("\nTIME: %s",customer.time);
+            printf("\nL'heure de la note: %s",e.time);
+            printf("\nle nom de la note: %s",e.name);
+            printf("\nLa date de la note: %s",e.date);
 
-            printf("\nMEETING WITH: %s",customer.name);
-
-            printf("\nMEETING AT: %s",customer.place);
-
-            printf("\nDURATION: %s",customer.duration);
-
-            printf("\nNOTE: %s",customer.note);
+            printf("\nLa note: %s",e.note);
 
             fclose(fpte);
 
-            printf("\n\n\tWOULD YOU LIKE TO EDIT ANOTHER RECORD.(Y/N)");
+            printf("\n\n\tVoulez vous modifier une autre note.(O/N)");
 
             scanf("%c",&choice);
 
@@ -348,37 +371,35 @@ void editrecord()
 
         {
 
-            printf("\nTHE RECORD DOES NOT EXIST::\n");
+            printf("\nLa note n'existe pas!\n");
 
-            printf("\nWOULD YOU LIKE TO TRY AGAIN...(Y/N)");
+            printf("\nVoulez vous reesayer...(O/N)");
 
             scanf("%c",&choice);
 
         }
 
     }
-    while(choice=='Y'||choice=='y');
+    while(choice=='O'||choice=='o');
 
     fclose ( fpte ) ;
 
     if(count==1)
 
-        printf("\n%d FILE IS EDITED...\n",count);
+        printf("\n%d une note a ete modifiee\n",count);
 
     else if(count>1)
 
-        printf("\n%d FILES ARE EDITED..\n",count);
+        printf("\n%d Plusieurs notes ont ete modifiees\n",count);
 
     else
 
-        printf("\nNO FILES EDITED...\n");
-
-    printf("\tPRESS ENTER TO EXIT EDITING MENU.");
-
-    getch();
+        printf("\nAucune note a ete modifier\n");
 
 }
-*/
+
+
+
 void button_pressed(GtkWidget *W,GtkEntry *data) {
     int id;
     char requete[255];
@@ -582,10 +603,10 @@ int main(int argc, char **argv) {
             }
             else{
                 printf("enter your username ");
-                scanf("%s", &username_con);
+                scanf("%s", username_con);
 
                 printf("enter your password ");
-                scanf("%s", &password_con);
+                scanf("%s", password_con);
 
                 if (login_console(password_con, username_con) == 0 ){
 
@@ -607,11 +628,11 @@ int main(int argc, char **argv) {
 
                     printf("\n\n\tAjouter une note\t[1]");
 
-                    printf("\n\tOUVRIR UN DOSSIER\t[2]");
+                    printf("\n\tVoir une note\t[2]");
 
-                    printf("\n\tMODIFIER UN DOSSIER\t[3]");
+                    printf("\n\tModifier une note\t[3]");
 
-                    printf("\n\tSUPPRIMER UN DOSSIER\t[4]");
+                    printf("\n\tSsupprimer une note\t[4]");
 
                     printf("\n\tMODIFIER LE MOT DE PASSE\t[5]");
 
@@ -621,9 +642,7 @@ int main(int argc, char **argv) {
 
                     scanf("%d",&ch);
 
-                    switch(ch)
-
-                    {
+                  switch(ch){
 
                         case 1:
 
@@ -631,36 +650,23 @@ int main(int argc, char **argv) {
 
                             break;
 
-                  /*      case 2:
+                     case 2:
 
-                            viewrecord();
-
-                            break;
-
-                        case 3:
-
-                            editrecord();
+                            view_note();
 
                             break;
 
-                        case 4:
+                            case 3:
 
-                            deleterecord();
+                                edit_note();
 
-                            break;
+                                                     break;
+
+
 
                         case 5:
 
-                            editpassword();
-
-                            break;
-                            */
-
-                        case 6:
-
-                            printf("\n\n\t\tTHANK YOU FOR USING THE SOFTWARE ");
-
-
+                            printf("\n\n\t\tMerci d'avoir utiliser l'appli  ");
 
                             exit(0);
 
@@ -679,6 +685,9 @@ int main(int argc, char **argv) {
                     system("cls");
 
                 }
+
+
+
                 return 0;
             }
                 else {
