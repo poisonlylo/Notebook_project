@@ -634,7 +634,7 @@ int main(int argc, char **argv) {
             if (login_console(password_con, username_con) == 0 ){
 
                 chdir(username_con);
-                
+
 
                 int ch;
 
