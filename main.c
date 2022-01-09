@@ -5,7 +5,6 @@
 #include <gtk/gtk.h>
 #include <sys/stat.h>
 #include<curses.h>
-#define getch() wgetch(stdscr)
 
 struct info{
     char name[30];
@@ -23,6 +22,7 @@ GtkEntry *tx_surname, *tx_email, *tx_password ;
 GtkEntry *entry_username, *entry_password;
 char pass[50];
 char pass_entry[50];
+
 
 void add_note( ){
 
@@ -45,7 +45,7 @@ void add_note( ){
 
         fp=fopen(filename,"wb+");
 
-    if(fp==NULL){
+        if(fp==NULL){
             printf("\nSYSTEM ERROR...");
             printf("\nPRESS ANY KEY TO EXIT");
             return ;
@@ -122,7 +122,7 @@ void add_note( ){
 
 }
 
-  void view_note( )
+void view_note( )
 
 {
 
@@ -134,19 +134,10 @@ void add_note( ){
 
     int ch;
 
-    printf("\n\n\t\t*******************************\n");
-
-    printf("\t\t* HERE IS THE VIEWING MENU *");
-
-    printf("\n\t\t*******************************\n\n");
-
     choice='O';
 
 
-
-    do
-
-    {
+    do{
 
         printf("\n\tEntrez la date de la note:[jj-mm-aaaa]:");
 
@@ -184,6 +175,14 @@ void add_note( ){
 
             printf("\n");
 
+            printf("\nNote: %s",e.name);
+
+            printf("\n");
+
+            printf("\nNote: %s",e.date);
+
+            printf("\n");
+
         }
 
 
@@ -204,11 +203,7 @@ void add_note( ){
 
 }
 
-void edit_note()
-
-{
-
-
+void edit_note(){
 
     FILE *fpte ;
 
@@ -218,17 +213,9 @@ void edit_note()
 
     int num,count=0;
 
-    printf("\n\n\t\t*******************************\n");
-
-    printf("\t\t* WELCOME TO THE EDITING MENU *");
-
-    printf("\n\t\t*******************************\n\n");
-
     choice=0;
 
-    if(choice!=0)
-
-    {
+    if(choice!=0){
 
         return ;
 
@@ -256,11 +243,6 @@ void edit_note()
 
             printf( "\nLa note n'existe pas:" ) ;
 
-            printf("\nPRESS ANY KEY TO GO BACK");
-
-            getch();
-
-            return;
 
         }
 
@@ -295,7 +277,7 @@ void edit_note()
 
                         case 1:
                             printf("\nEntrez l'heure:");
-                            gets(e.time);
+                            fgets(e.time, 255, stdin);
 
                             break;
 
@@ -343,17 +325,11 @@ void edit_note()
 
             system("cls");
 
-            printf("\n\t\tEDITING COMPLETED...\n");
-
-            printf("--------------------\n");
-
-            printf("THE NEW RECORD IS:\n");
-
-            printf("--------------------\n");
+            printf("\n\t\tLa note est modifiée\n");
 
             printf("\nL'heure de la note: %s",e.time);
             printf("\nle nom de la note: %s",e.name);
-            printf("\nLa date de la note: %s",e.date);
+
 
             printf("\nLa note: %s",e.note);
 
@@ -398,7 +374,48 @@ void edit_note()
 
 }
 
+void delete_note( ) {
+    FILE *fp, *fptr;
+    struct info e;
+    char filename[15], another = 'O', time[10];
+    int choice;
 
+    while (another == 'O') {
+
+        printf("\n\n\tSupprimer une note.");
+
+        do {
+            printf("\n\tEntrez la date de la note que vous voulez supprimer:[jj-mm-aaaa]:");
+
+            fflush(stdin);
+
+            gets(filename);
+
+            fp = fopen(filename, "wb");
+
+            if (fp == NULL) {
+
+                printf("\nLa note n'existe pas");
+
+                return;
+            }
+
+            fclose(fp);
+
+            remove(filename);
+
+            printf("\nLa note est supprimé");
+
+            break;
+
+        } while(choice=='o'||choice=='O');
+            printf("\n\tVoulez vous supprimer une autre note.(O/N):");
+
+            fflush(stdin);
+
+            scanf("%c", &another);
+    }
+}
 
 void button_pressed(GtkWidget *W,GtkEntry *data) {
     int id;
@@ -452,10 +469,10 @@ void login(GtkWidget *W,GtkEntry *data) {
         finish_with_error(con);
     }
 
-     sprintf(requette, "SELECT * FROM account WHERE username = '%s'", gtk_entry_get_text(entry_username) );
-     if ( mysql_query(con, requette)){
-         finish_with_error(con);
-     }
+    sprintf(requette, "SELECT * FROM account WHERE username = '%s'", gtk_entry_get_text(entry_username) );
+    if ( mysql_query(con, requette)){
+        finish_with_error(con);
+    }
 
     MYSQL_RES *result = mysql_store_result(con);
 
@@ -554,6 +571,11 @@ void regestration_console(char *username, char *email, char *password){
     }
 }
 
+void show_page(){
+   gtk_widget_show (window2);
+
+}
+
 G_MODULE_EXPORT
 void on_app_destroy (void)
 {
@@ -569,60 +591,57 @@ void on_menu_quit_activate (void)
 
 
 int main(int argc, char **argv) {
-        int reponse;
-        int reponse_insc;
-        char username_con[255] ;
-        char password_con[255] ;
-        char insc_email[255];
-        char insc_password[255];
-        char insc_username[255];
+    int reponse;
+    int reponse_insc;
+    char username_con[255] ;
+    char password_con[255] ;
+    char insc_email[255];
+    char insc_password[255];
+    char insc_username[255];
+    char personne[255];
 
 
-        //demande a l'utilisateur
-        printf("Tappez 1 pour lignes de commandes  \n Tappez 2 pour interface graphique\n");
-        scanf("%d", &reponse);
+    //demande a l'utilisateur
+    printf("Tappez 1 pour lignes de commandes  \n Tappez 2 pour interface graphique\n");
+    scanf("%d", &reponse);
 
 
-        //1 pour console
-        if (reponse == 1 ){
+    //1 pour console
+    if (reponse == 1 ){
 
-            printf("Tappez 1 pour INSCRIPTION ou 2 pour CONNEXION \n");
-            scanf("%d", &reponse_insc);
+        printf("Tappez 1 pour INSCRIPTION ou 2 pour CONNEXION \n");
+        scanf("%d", &reponse_insc);
 
-            if (reponse_insc == 1){
-                printf("Entrez votre Username");
-                scanf("%s", insc_username);
+        if (reponse_insc == 1){
+            printf("Entrez votre Username");
+            scanf("%s", insc_username);
 
-                printf("Entrez votre Email");
-                scanf("%s", insc_email);
+            printf("Entrez votre Email");
+            scanf("%s", insc_email);
 
-                printf("Entrez votre Mot de passe");
-                scanf("%s", insc_password);
+            printf("Entrez votre Mot de passe");
+            scanf("%s", insc_password);
 
-                regestration_console(insc_username, insc_email, insc_password);
-            }
-            else{
-                printf("enter your username ");
-                scanf("%s", username_con);
+            regestration_console(insc_username, insc_email, insc_password);
+        }
+        else{
+            printf("enter your username ");
+            scanf("%s", username_con);
 
-                printf("enter your password ");
-                scanf("%s", password_con);
+            printf("enter your password ");
+            scanf("%s", password_con);
 
-                if (login_console(password_con, username_con) == 0 ){
+            if (login_console(password_con, username_con) == 0 ){
 
-                    opendir(username_con);
+                chdir(username_con);
+
+               // opendir(username_con);
 
                 int ch;
 
-                printf("\n\n\t***********************************\n");
+                printf("\tBlock Notes Personnel\n");
 
-                printf("\t*Block Notes Personnel*\n");
-
-                printf("\t***********************************");
-
-                while(1)
-
-                {
+                while(1){
 
                     printf("\n\n\t\tMENU PRINCIPAL:");
 
@@ -632,17 +651,15 @@ int main(int argc, char **argv) {
 
                     printf("\n\tModifier une note\t[3]");
 
-                    printf("\n\tSsupprimer une note\t[4]");
+                    printf("\n\tSupprimer une note\t[4]");
 
-                    printf("\n\tMODIFIER LE MOT DE PASSE\t[5]");
+                    printf("\n\tSortie\t\t[5]");
 
-                    printf("\n\tSORTIE\t\t[6]");
-
-                    printf("\n\n\tSAISISSEZ VOTRE CHOIX :");
+                    printf("\n\n\tSaisissez votre choix :");
 
                     scanf("%d",&ch);
 
-                  switch(ch){
+                    switch(ch){
 
                         case 1:
 
@@ -650,19 +667,23 @@ int main(int argc, char **argv) {
 
                             break;
 
-                     case 2:
+                        case 2:
 
                             view_note();
 
                             break;
 
-                            case 3:
+                        case 3:
 
-                                edit_note();
+                            edit_note();
 
-                                                     break;
+                            break;
 
+                        case 4:
 
+                            delete_note();
+
+                            break;
 
                         case 5:
 
@@ -672,33 +693,24 @@ int main(int argc, char **argv) {
 
                         default:
 
-                            printf("\nYOU ENTERED WRONG CHOICE..");
-
-                            printf("\nPRESS ANY KEY TO TRY AGAIN");
-
-
+                            printf("\nFAUX! veulliez reessayer une nouvelle fois..");
 
                             break;
-
                     }
-
-                    system("cls");
-
                 }
-
-
 
                 return 0;
             }
-                else {
+            else {
                 printf("username or password incorrect !!");
             }
-           }
         }
+    }
+
 
 
         //2 pour GI
-        else{
+    else{
         g_log_set_handler ("Gtk", G_LOG_LEVEL_WARNING, (GLogFunc) gtk_false, NULL);
         gtk_init (&argc, &argv);
         g_log_set_handler ("Gtk", G_LOG_LEVEL_WARNING, g_log_default_handler, NULL);
@@ -723,8 +735,8 @@ int main(int argc, char **argv) {
         gtk_builder_add_from_file (builder2, "app_design.glade", NULL);
         window2 = GTK_WIDGET (gtk_builder_get_object (builder2, "window2"));
         gtk_builder_connect_signals (builder2, NULL);
-            entry_username = gtk_builder_get_object(builder, "entry_username");
-            entry_password = gtk_builder_get_object(builder, "entry_password");
+        entry_username = gtk_builder_get_object(builder, "entry_username");
+        entry_password = gtk_builder_get_object(builder, "entry_password");
         GtkWidget *btn_login = gtk_builder_get_object(builder, "btn_login");
         g_signal_connect(btn_login, "clicked", G_CALLBACK(login), entry_username);
         g_signal_connect(btn_login, "clicked", G_CALLBACK(login), entry_password);
@@ -739,13 +751,7 @@ int main(int argc, char **argv) {
 
         gtk_main ();
 
-            return 0;
-        }
-
+        return 0;
     }
 
-
-
-
-
-
+}
